@@ -1,6 +1,6 @@
 # paperview-server
 
-This is the **paperview**  NodeJS server that can convert any document to viewable assets (see `paperview-js` to display them).
+This is the **paperview** NodeJS server that can convert any document to viewable assets (see [paperview-js](https://github.com/adadgio/paperview-js) to display them).
 
 It's a perfect open source candidate to replace the *Crocodoc* and *Box View* legacy payed service (and a perfectly good reason not to use their new solution clearly based on open `mozilla/pdfjs` which does not support offline assets).
 

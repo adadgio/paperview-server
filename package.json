@@ -5,7 +5,7 @@
   "main": "index.js",
   "repository": {
     "type": "git",
-    "url": "git://github.com/adadgio/repository.git"
+    "url": "https://github.com/adadgio/paperview-server"
   },
   "scripts": {
     "start": "node ./dist/index.js --env=dev",
