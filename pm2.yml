@@ -1,0 +1,9 @@
+# pm2 configuration
+apps:
+  - name: "critical-miss"
+    script: "./index.js"
+    instances: 4
+    exec_mode: cluster
+    args: "--env=prod"
+    env:
+      NODE_ENV: production
