@@ -1,6 +1,6 @@
 # pm2 configuration
 apps:
-  - name: "critical-miss"
+  - name: "paperview-hummer"
     script: "./index.js"
     instances: 4
     exec_mode: cluster

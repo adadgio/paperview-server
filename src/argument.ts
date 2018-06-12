@@ -32,13 +32,13 @@ class ArgumentSingleton
         return typeof(this.args[key]) === 'undefined' ? false : true;
     }
 
-    public require(key: string, allowed: Array<any> = [])
+    public require(key: string, allowed: Array<any> = [], defaultvalue: any = false)
     {
-        if (this.isNull(key) || this.isEmpty(key)) {
+        if (this.isNull(key) || this.isEmpty(key) && !defaultvalue) {
             console.log(this.COLOR.RED + '\Argument --'+ key +' is required'+ this.COLOR.RESET);
             process.exit(0);
         }
-
+        
         if (allowed.length > 0 && allowed.indexOf(this.getArg(key)) === -1) {
             console.log(this.COLOR.RED + '\Argument value "'+ this.getArg(key) +'" for --'+ key +' is not allowed'+ this.COLOR.RESET);
             process.exit(0);

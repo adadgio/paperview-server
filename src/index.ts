@@ -1,6 +1,6 @@
 import * as fs      from 'fs';
 import * as path    from 'path';
-import * as cors    from 'cors';
+// import * as cors    from 'cors';
 import * as express from 'express';
 import * as parser  from 'body-parser';
 import * as upload  from 'express-fileupload';
@@ -34,6 +34,7 @@ export function App() {
     const server = express()
     const PORT = Config.get('PORT') || 8080;
     const corsOptions = { origin: '*', optionsSuccessStatus: 200 }
+
     server.use(parser.urlencoded({ extended: false, limit: '80mb' }))
     server.use(parser.json())
     server.use(upload())
@@ -49,7 +50,7 @@ export function App() {
      * Base API endpoint.
      */
     server.get('/', (req, res) => {
-        let response = { status: 'ok' };
+        let response = { status: 'ok' }
         res.set('Content-Type', 'application/json')
         res.status(200).send(response).end()
     })
@@ -60,7 +61,7 @@ export function App() {
     server.post('/webhook/self', (req, res) => {
         let response = { incomingRequest: req.body };
         console.log('Test webhook received: OK')
-        res.set('Content-Type', 'application/json')
+        res.set('Content-Type', 'application/json; charset=utf-8')
         res.status(200).send(response).end()
     })
 
@@ -85,28 +86,25 @@ export function App() {
                     Pubsub.emit('webhook:send', { url: webhookUrl, data: { status: 'document.done', document: document }})
                 }
             }).catch(error => {
-                // @TODO Log something or send error to mail or server?
-                console.log(error)
                 if (webhookUrl) {
                     Pubsub.emit('webhook:send', { url: webhookUrl, data: { status: 'document.error', document: document, error: 'failed to convert' }})
                 }
             })
         }).catch(error => {
-            // @TODO Maybe log error or send mail?
-            console.log(error)
             if (webhookUrl) {
                 Pubsub.emit('webhook:send', { url: webhookUrl, data: { status: 'document.error', document: document, error: 'unable to save uploaded file' }})
             }
         })
 
         res.set('Content-Type', 'application/json')
-        res.status(200).send({ status: 'ok', document: { document: document.serialize() } }).end()
+        res.status(200).send({ status: 'document.pending', document: document.serialize() }).end()
     })
 
     /**
      * Serve PDF file or other asset.
+     * '/document/:uuid.:ext',cors(corsOptions)
      */
-    server.get('/document/:uuid.:ext', cors(corsOptions), (req, res) => {
+    server.get('/document/:uuid.:ext', (req, res) => {
         const document = new Document(req.params.uuid)
         const filepath = document.webpath(req.params.ext)
 
@@ -128,4 +126,5 @@ export function App() {
 // end of App()
 }
 
-const app = new App()
+// const app = new App()
+export let app = new App()

@@ -9,7 +9,7 @@ import { Config }               from '../environments/config';
 
 export class Document
 {
-    protected key: string;
+    protected uniqkey: string;
     protected name: string;
     protected ext: string;
     protected path: string;
@@ -17,24 +17,24 @@ export class Document
 
     private _input: FileInputInterface;
 
-    constructor(key?: string)
+    constructor(uniqkey?: string)
     {
-        if (key) {
+        if (uniqkey) {
             // we are creating an object for an already existing document asset
-            this.key = key;
+            this.uniqkey = uniqkey;
             this.configureExisting()
 
         } else {
             // create a new document from scratch with a new keu (uuid)
             // we will probably need to call createFromInput afterwards to fill in its details
-            this.key = uuid()
+            this.uniqkey = uuid()
             this.configureNew()
         }
     }
 
-    getKey()
+    key()
     {
-        return this.key;
+        return this.uniqkey;
     }
 
     createFromInput(input: FileInputInterface)
@@ -70,10 +70,15 @@ export class Document
         }
     }
 
+    extension()
+    {
+        return this.ext;
+    }
+
     dirpath(): string
     {
         const datasdir = trim.right(path.resolve(Config.get('DATAS_DIR')), '/')
-        return `${datasdir}/${this.key}`
+        return `${datasdir}/${this.key()}`
     }
 
     webpath(ext?: string): string
@@ -83,14 +88,19 @@ export class Document
 
         // when extension is not specified the default extension guessed from the filename will be used
         ext = (ext) ? ext : this.ext
-        return `${host}/document/${this.key}/${this.key}.${ext}`
+        return `${host}/document/${this.key()}/${this.key()}.${ext}`
     }
 
     filepath(ext?: string): string
     {
         // when extension is not specified the default extension guessed from the filename will be used
         ext = (ext) ? ext : this.ext
-        return `${this.dirpath()}/${this.key}.${ext}`
+        return `${this.dirpath()}/${this.key()}.${ext}`
+    }
+
+    pdf()
+    {
+        return `${this.dirpath()}/${this.key()}.pdf`
     }
 
     save(): Promise<Document>
@@ -121,6 +131,17 @@ export class Document
         })
     }
 
+    update(data: any)
+    {
+        for (let prop in data) {
+            if (this.hasOwnProperty(prop)) {
+                this[prop] = data[prop]
+            }
+        }
+
+        return Promise.resolve(this)
+    }
+
     remove(): Promise<boolean>
     {
         return new Promise((resolve, reject) => {
@@ -138,13 +159,14 @@ export class Document
     {
         let port = (Config.get('PORT') !== null) ? `:${Config.get('PORT')}` : null;
         let host = `${Config.get('HOST')}${port}`;
-
+        
         return  {
-            key: this.key,
+            key: this.key(),
             name: this.name,
-            extension: this.ext,
+            ext: this.ext,
             url: this.webpath(),
             assets: this.webpath('zip'),
+            pdf: this.webpath('pdf')
         }
     }
 }

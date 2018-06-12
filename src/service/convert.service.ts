@@ -3,18 +3,20 @@ import * as child       from 'child_process';
 import * as pdfextr     from 'pdf-extractor';
 import * as zipFolder   from 'zip-folder';
 import { Console }      from '../utils';
-import { Document }     from '../Document';
-import { Pubsub }       from '../events';
+import { Document }     from '../Document';
+import { LibreOffice }  from './libreoffice.service';
+import { Zip }          from './zip.service';
 
 const PdfExtractor = pdfextr.PdfExtractor
+const archiver = require('archiver')
 
 export class ConvertServiceSingleton
 {
     extract(document: Document): Promise<Document>
     {
-        const pdfPath = document.filepath()
+        const pdfPath = document.filepath('pdf')
         const outputDir = document.dirpath()
-        
+
         let extractor = new PdfExtractor(outputDir, {
             viewportScale: (width, height) => {
                 // dynamic zoom based on rendering a page to a fixed page size
@@ -28,32 +30,37 @@ export class ConvertServiceSingleton
         })
 
         return new Promise((resolve, reject) => {
-            return extractor.parse(pdfPath).then(() => {
+
+            let toPdfPromise;
+
+            if (document.extension()) {
+                toPdfPromise = LibreOffice.transform(document, { to: 'pdf' })
+            } else {
+                toPdfPromise = Promise.resolve(document)
+            }
+            
+            return toPdfPromise.then(() => {
+                return extractor.parse(pdfPath)
+            }).then(() => {
                 return this.optimizeSVG(document)
             }).then(() => {
-                return this.zip(document)
+                return Promise.all([
+                    Zip.zip(document, 'assets', ['*.pdf', `*.${document.extension()}`]),
+                    Zip.zip(document, 'assets.svg', ['*.png', '*.pdf', `*.${document.extension()}`]),
+                    Zip.zip(document, 'assets.png', ['*.svg', '*.pdf', `*.${document.extension()}`]),
+                ])
             }).then(() => {
                 resolve(document)
+            }).catch(error => {
+                reject(error)
             })
-            .catch(error => {
-                throw new Error(error)
-            })
+
         })
     }
 
     zip(document: Document): Promise<any>
     {
-        let zipath = `${document.dirpath()}/assets.zip`
-
-        return new Promise((resolve, reject) => {
-            zipFolder(document.dirpath(), `${document.dirpath()}/${document.getKey()}.zip`, (error) => {
-                if (error) {
-                    reject(error)
-                } else {
-                    resolve(document)
-                }
-            })
-        })
+        return Zip.zip(document)
     }
 
     optimizeSVG(document: Document)
