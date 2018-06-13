@@ -159,7 +159,7 @@ export class Document
     {
         let port = (Config.get('PORT') !== null) ? `:${Config.get('PORT')}` : null;
         let host = `${Config.get('HOST')}${port}`;
-        
+
         return  {
             key: this.key(),
             name: this.name,

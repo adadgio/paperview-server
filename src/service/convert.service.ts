@@ -1,14 +1,12 @@
 import * as fs          from 'fs';
 import * as child       from 'child_process';
 import * as pdfextr     from 'pdf-extractor';
-import * as zipFolder   from 'zip-folder';
 import { Console }      from '../utils';
 import { Document }     from '../Document';
 import { LibreOffice }  from './libreoffice.service';
 import { Zip }          from './zip.service';
 
 const PdfExtractor = pdfextr.PdfExtractor
-const archiver = require('archiver')
 
 export class ConvertServiceSingleton
 {
@@ -38,7 +36,7 @@ export class ConvertServiceSingleton
             } else {
                 toPdfPromise = Promise.resolve(document)
             }
-            
+
             return toPdfPromise.then(() => {
                 return extractor.parse(pdfPath)
             }).then(() => {

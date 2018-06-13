@@ -19,7 +19,6 @@
   "author": "Romain BRUCKERT",
   "license": "ISC",
   "dependencies": {
-    "archiver": "^2.1.1",
     "body-parser": "^1.18.2",
     "dotenv": "^4.0.0",
     "express": "^4.16.3",
@@ -32,8 +31,7 @@
     "rimraf": "^2.6.2",
     "striptags": "^3.1.1",
     "svgo": "^1.0.5",
-    "trim-character": "^2.0.1",
-    "zip-folder": "^1.0.0"
+    "trim-character": "^2.0.1"
   },
   "devDependencies": {
     "@types/chai": "^4.1.3",
