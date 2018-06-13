@@ -79,7 +79,7 @@ export function App() {
 
         const document = new Document()
         document.createFromInput(file)
-
+        
         document.save().then((doc: Document) => {
             Convert.extract(doc).then(doc => {
                 if (webhookUrl) {
@@ -101,8 +101,10 @@ export function App() {
     })
 
     /**
-     * Serve PDF file or other asset.
-     * '/document/:uuid.:ext',cors(corsOptions)
+     * Serve files and static assets.
+     * Note: if cors is necessary use: "/document/:uuid.:ext", cors(corsOptions)
+     *
+     * @param
      */
     server.get('/document/:uuid.:ext', (req, res) => {
         const document = new Document(req.params.uuid)
